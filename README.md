@@ -65,3 +65,21 @@ dism /unmount-wim /mountdir:boot /commit
 ```
 
 Copy modified **boot.wim** to HTTP server (to the same place where **bcd** and **boot.sdi** files were copied)
+
+
+# Boot
+
+## Modify grub.cfg (add as first entry)
+
+```
+menuentry 'windows-install' {
+  insmod part_gpt
+  insmod ext2
+  if [ "$grub_platform" = "efi" ]; then
+    chainloader /ipxe-chain.efi
+  else
+    linux16 /ipxe-chain.bios
+  fi
+}
+```
+
