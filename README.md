@@ -9,7 +9,7 @@
 apt-get update
 apt-get install -y build-essential syslinux mkisofs isolinux liblzma-dev
 
-git clone https://github.com/ipxe/ipxe.git
+git clone --depth 1 https://github.com/ipxe/ipxe.git
 
 cd ipxe/src
 # Copy and modify chain.ipxe
