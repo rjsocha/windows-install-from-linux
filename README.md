@@ -5,13 +5,17 @@
 ## ipxe
 
 ```
-
 apt-get update
 apt-get install -y build-essential syslinux mkisofs isolinux liblzma-dev
+```
 
+```
 git clone --depth 1 https://github.com/ipxe/ipxe.git
-
 cd ipxe/src
+make
+```
+
+```
 # Copy and modify chain.ipxe
 make bin/ipxe.lkrn EMBED=chain.ipxe
 make bin-x86_64-efi/ipxe.efi EMBED=chain.ipxe
