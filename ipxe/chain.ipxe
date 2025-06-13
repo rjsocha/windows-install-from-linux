@@ -1,0 +1,4 @@
+#!ipxe
+set url http://<HOST-OR-IP->/chain.ipxe
+dhcp
+chain --replace ${url}
