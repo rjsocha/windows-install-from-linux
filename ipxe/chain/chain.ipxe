@@ -1,0 +1,8 @@
+#!ipxe
+# set your own URL
+set url http://boot
+kernel ${url}/wimboot
+initrd ${url}/2022/bcd          BCD
+initrd ${url}/2022/boot.sdi     boot.sdi
+initrd ${url}/2022/boot.wim     boot.wim
+boot || shell
