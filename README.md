@@ -74,6 +74,7 @@ Copy modified **boot.wim** to HTTP server (to the same place where **bcd** and *
 ```
 menuentry 'windows-install' {
   insmod part_gpt
+  insmod part_msdos
   insmod ext2
   if [ "$grub_platform" = "efi" ]; then
     chainloader /ipxe-chain.efi
@@ -82,4 +83,3 @@ menuentry 'windows-install' {
   fi
 }
 ```
-
