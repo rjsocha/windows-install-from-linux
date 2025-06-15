@@ -44,8 +44,9 @@
             <ModifyPartition>
               <Order>1</Order>
               <PartitionID>1</PartitionID>
-              <Label>System Reserved</Label>
+              <Label>System</Label>
               <Format>NTFS</Format>
+              <Active>true</Active>
             </ModifyPartition>
             <ModifyPartition>
               <Order>2</Order>
@@ -65,7 +66,10 @@
               <Value>4</Value>
             </MetaData>
           </InstallFrom>
-          <InstallToAvailablePartition>true</InstallToAvailablePartition>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>2</PartitionID>
+          </InstallTo>
           <WillShowUI>OnError</WillShowUI>
         </OSImage>
       </ImageInstall>
