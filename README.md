@@ -30,6 +30,13 @@ cp bin-x86_64-efi/ipxe.efi /boot/ipxe-chain.efi
 
 ## Prepare HTTP server
 
+Download Windows Server 2025 Evaluation ISO:
+
+```
+  curl -OL# https://software-static.download.prss.microsoft.com/dbazure/888969d5-f34g-4e03-ac9d-1f9786c66749/26100.1742.240906-0331.ge_release_svc_refresh_SERVER_EVAL_x64FRE_en-us.iso
+```
+
+
 Download Windows Server 2022 Evaluation ISO:
 
 ```
