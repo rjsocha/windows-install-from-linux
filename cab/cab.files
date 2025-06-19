@@ -1,0 +1,41 @@
+.OPTION EXPLICIT
+.Set CabinetNameTemplate=wyga.cab
+.Set DiskDirectoryTemplate=.
+.Set CompressionType=LZX
+.Set Cabinet=on
+.Set Compress=on
+.Set MaxDiskSize=0
+.Set RptFileName=NUL
+.Set InfFileName=NUL
+
+.Set DestinationDir=bin
+bin\curl-ca-bundle.crt
+bin\curl.exe
+
+.Set DestinationDir=vnc
+vnc\ddengine64.dll
+vnc\logging.dll
+vnc\logmessages.dll
+vnc\ultravnc.ini
+vnc\vnchooks.dll
+vnc\winvnc.exe
+
+.Set DestinationDir=drv\virtio\netkvm
+..\driver\virtio\2025\netkvm\netkvm.cat
+..\driver\virtio\2025\netkvm\netkvm.inf
+..\driver\virtio\2025\netkvm\netkvm.sys
+..\driver\virtio\2025\netkvm\netkvmp.exe
+
+.Set DestinationDir=drv\virtio\sriov
+..\driver\virtio\2025\sriov\vioprot.cat
+..\driver\virtio\2025\sriov\vioprot.inf
+
+.Set DestinationDir=drv\virtio\viostor
+..\driver\virtio\2025\viostor\viostor.cat
+..\driver\virtio\2025\viostor\viostor.inf
+..\driver\virtio\2025\viostor\viostor.sys
+
+.Set DestinationDir=drv\virtio\vioscsi
+..\driver\virtio\2025\vioscsi\vioscsi.cat
+..\driver\virtio\2025\vioscsi\vioscsi.inf
+..\driver\virtio\2025\vioscsi\vioscsi.sys

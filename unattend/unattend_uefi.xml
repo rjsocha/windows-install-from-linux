@@ -106,7 +106,7 @@
       <RunSynchronous>
         <RunSynchronousCommand wcm:action="add">
           <Order>1</Order>
-          <Path>netsh advfirewall firewall add rule name=ICMP protocol=icmpv4 dir=in action=allow</Path>
+          <Path>netsh advfirewall firewall add rule name=ICMPEcho protocol=icmpv4:8,any dir=in action=allow</Path>
         </RunSynchronousCommand>
       </RunSynchronous>
     </component>
