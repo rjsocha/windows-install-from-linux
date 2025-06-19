@@ -74,13 +74,21 @@ dism /unmount-wim /mountdir:boot /commit
 Copy modified **boot.wim** to HTTP server (to the same place where **bcd** and **boot.sdi** files were copied)
 
 
-## Add Virtio drivers
+## Add drivers
 
 ```
 mkdir install
 dism /mount-Wim /wimfile:install.wim /index:4 /mountdir:install
 dism /image:install /add-driver /driver:git\driver\virtio\2025 /recurse
+:: Optional
+dism /image:install /remove-capability /capabilityname:AzureArcSetup~~~~
 dism /unmount-wim /mountdir:install /commit
+```
+
+## Export only DC image
+
+```
+dism /export-image /sourceimagefile:install.wim /sourceindex:4 /destinationimagefile:install-dc.wim /compress:max
 ```
 
 # Boot

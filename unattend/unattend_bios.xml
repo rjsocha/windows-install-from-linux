@@ -62,8 +62,9 @@
         <OSImage>
           <InstallFrom>
             <MetaData wcm:action="add">
+              <!-- Modified install.wim, see README.md -->
               <Key>/image/index</Key>
-              <Value>4</Value>
+              <Value>1</Value>
             </MetaData>
           </InstallFrom>
           <InstallTo>
