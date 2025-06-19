@@ -1,4 +1,4 @@
 #!ipxe
-set url http://<HOST-OR-IP->/chain.ipxe
+set url http://http.install.socha.it/windows/ipxe/chain.ipxe
 dhcp
 chain --replace ${url}

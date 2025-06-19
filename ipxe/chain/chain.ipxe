@@ -1,8 +1,10 @@
 #!ipxe
-# set your own URL
-set url http://boot
+set url http://http.install.socha.it/windows
 kernel ${url}/wimboot
-initrd ${url}/2022/bcd          BCD
-initrd ${url}/2022/boot.sdi     boot.sdi
-initrd ${url}/2022/boot.wim     boot.wim
+initrd ${url}/wyga/wyga.ini     winpeshl.ini
+initrd ${url}/wyga/wyga.cmd     wyga.cmd
+initrd ${url}/wyga/wyga.cab     wyga.cab
+initrd ${url}/2025/bcd          BCD
+initrd ${url}/2025/boot.sdi     boot.sdi
+initrd ${url}/2025/boot.wim     boot.wim
 boot || shell
