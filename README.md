@@ -1,6 +1,28 @@
 # Reinstall Windows from Linux
 
-**PROBLEM:** How to install Windows when no KVM or BMC is available
+**PROBLEM:** How to install Windows when no KVM or BMC is available.
+
+# Usage
+
+```
+curl -o /boot/ipxe-chain.bios -# http://http.install.socha.it/windows/boot/ipxe-chain.bios
+curl -o /boot/ipxe-chain.efi -# http://http.install.socha.it/windows/boot/ipxe-chain.efi
+```
+
+Modify grub.cfg (add as first entry)
+
+```
+menuentry 'windows-install' {
+  insmod part_gpt
+  insmod part_msdos
+  insmod ext2
+  if [ "$grub_platform" = "efi" ]; then
+    chainloader /ipxe-chain.efi
+  else
+    linux16 /ipxe-chain.bios
+  fi
+}
+```
 
 ## ipxe
 
