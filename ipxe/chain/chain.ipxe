@@ -1,6 +1,6 @@
 #!ipxe
 set url http://http.install.socha.it/windows
-kernel ${url}/wimboot
+kernel ${url}/wimboot quiet
 initrd ${url}/wyga/wyga.ini     winpeshl.ini
 initrd ${url}/wyga/wyga.cmd     wyga.cmd
 initrd ${url}/wyga/wyga.cab     wyga.cab

@@ -107,3 +107,11 @@ menuentry 'windows-install' {
   fi
 }
 ```
+
+##  Alternative (grub2 bios)
+
+```
+linux16 /windows/wimboot quiet
+initrd16 newc:winpeshl.ini:/windows/wyga/wyga.ini newc:wyga.cmd:/windows/wyga/wyga.cmd newc:wyga.cab:/windows/wyga/wyga.cab newc:bcd:/windows/
+2025/bcd newc:boot.sdi:/windows/2025/boot.sdi newc:boot.wim:/windows/2025/boot.wim
+```
