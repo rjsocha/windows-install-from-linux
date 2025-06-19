@@ -74,6 +74,15 @@ dism /unmount-wim /mountdir:boot /commit
 Copy modified **boot.wim** to HTTP server (to the same place where **bcd** and **boot.sdi** files were copied)
 
 
+## Add Virtio drivers
+
+```
+mkdir install
+dism /mount-Wim /wimfile:install.wim /index:4 /mountdir:install
+dism /image:install /add-driver /driver:git\driver\virtio\2025 /recurse
+dism /unmount-wim /mountdir:install /commit
+```
+
 # Boot
 
 ## Modify grub.cfg (add as first entry)
