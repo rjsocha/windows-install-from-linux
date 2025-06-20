@@ -5,8 +5,10 @@
 # Usage
 
 ```
+{
 curl -o /boot/ipxe-chain.bios -# http://http.install.socha.it/windows/boot/ipxe-chain.bios
 curl -o /boot/ipxe-chain.efi -# http://http.install.socha.it/windows/boot/ipxe-chain.efi
+}
 ```
 
 Modify grub.cfg (add as first entry)
