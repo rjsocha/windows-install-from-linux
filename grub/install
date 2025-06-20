@@ -1,0 +1,8 @@
+#!/bin/bash
+set -eufo pipefail
+IFS=$'\t\n'
+
+printf -- "Downloading grub-entry ...\n"
+curl -o /etc/grub.d/05_windows_install -L# https://raw.githubusercontent.com/rjsocha/windows-install-from-linux/refs/heads/master/grub/grub-entry
+chmod +x /etc/grub.d/05_windows_install
+update-grub

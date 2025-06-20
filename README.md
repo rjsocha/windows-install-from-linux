@@ -2,6 +2,14 @@
 
 **PROBLEM:** How to install Windows when no KVM or BMC is available.
 
+# Auto grub config
+
+```
+{
+  curl -L# https://raw.githubusercontent.com/rjsocha/windows-install-from-linux/refs/heads/master/grub/install | bash -s
+}
+```
+
 # Usage
 
 ```

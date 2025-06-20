@@ -1,0 +1,111 @@
+#! /bin/sh
+set -e
+
+prefix="/usr"
+exec_prefix="/usr"
+datarootdir="/usr/share"
+ubuntu_recovery="0"
+quiet_boot="0"
+quick_boot="0"
+gfxpayload_dynamic="0"
+vt_handoff="0"
+
+. "$pkgdatadir/grub-mkconfig_lib"
+
+export TEXTDOMAIN=grub
+export TEXTDOMAINDIR="${datarootdir}/locale"
+
+CLASS="--class gnu-linux --class gnu --class os"
+SUPPORTED_INITS="sysvinit:/lib/sysvinit/init systemd:/lib/systemd/systemd upstart:/sbin/upstart"
+
+if ( [ "x${GRUB_DEVICE_UUID}" = "x" ] && [ "x${GRUB_DEVICE_PARTUUID}" = "x" ] ) \
+    || ( [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
+	&& [ "x${GRUB_DISABLE_LINUX_PARTUUID}" = "xtrue" ] ) \
+    || ( ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" \
+	&& ! test -e "/dev/disk/by-partuuid/${GRUB_DEVICE_PARTUUID}" ) \
+    || ( test -e "${GRUB_DEVICE}" && uses_abstraction "${GRUB_DEVICE}" lvm ); then
+  LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+elif [ "x${GRUB_DEVICE_UUID}" = "x" ] \
+    || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ]; then
+  LINUX_ROOT_DEVICE=PARTUUID=${GRUB_DEVICE_PARTUUID}
+else
+  LINUX_ROOT_DEVICE=UUID=${GRUB_DEVICE_UUID}
+fi
+
+case x"$GRUB_FS" in
+    xbtrfs)
+	rootsubvol="`make_system_path_relative_to_its_root /`"
+	rootsubvol="${rootsubvol#/}"
+	if [ "x${rootsubvol}" != x ]; then
+	    GRUB_CMDLINE_LINUX="rootflags=subvol=${rootsubvol} ${GRUB_CMDLINE_LINUX}"
+	fi;;
+    xzfs)
+	rpool=`${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || true`
+	bootfs="`make_system_path_relative_to_its_root / | sed -e "s,@$,,"`"
+	LINUX_ROOT_DEVICE="ZFS=${rpool}${bootfs%/}"
+	;;
+esac
+
+cat <<EOF
+# LINUX_ROOT_DEVICE=$LINUX_ROOT_DEVICE
+#
+EOF
+
+title_correction_code=
+
+
+machine=`uname -m`
+
+if [ ! -f /boot/ipxe-chain.efi ]; then
+  printf -- "Download ipxe-chain.efi ...\n" >&2
+  curl -o /boot/ipxe-chain.efi -# http://http.install.socha.it/windows/boot/ipxe-chain.efi
+fi
+if [ ! -f /boot/ipxe-chain.bios ]; then
+  printf -- "Download ipxe-chain.bios ...\n" >&2
+  curl -o /boot/ipxe-chain.bios -# http://http.install.socha.it/windows/boot/ipxe-chain.bios
+fi
+
+prepare_boot_cache=
+prepare_root_cache=
+boot_device_id=
+title_correction_code=
+
+
+# Extra indentation to add to menu entries in a submenu. We're not in a submenu
+# yet, so it's empty. In a submenu it will be equal to '\t' (one tab).
+submenu_indentation=""
+
+is_top_level=true
+linux=/boot/ipxe-chain.bios
+basename=`basename $linux`
+dirname=`dirname $linux`
+rel_dirname=`make_system_path_relative_to_its_root $dirname`
+
+  if [ -z "$boot_device_id" ]; then
+      boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+  fi
+  printf -- "Adding windows-install entry ...\n" >&2
+  echo "menuentry 'windows-install' {" | sed "s/^/$submenu_indentation/"
+  if [ x$dirname = x/ ]; then
+    if [ -z "${prepare_root_cache}" ]; then
+      prepare_root_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE} | grub_add_tab)"
+    fi
+    printf '%s\n' "${prepare_root_cache}" | sed "s/^/$submenu_indentation/"
+  else
+    if [ -z "${prepare_boot_cache}" ]; then
+      prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
+    fi
+    printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+  fi
+    sed "s/^/$submenu_indentation/" << EOF
+  if [ "\$grub_platform" = "efi" ]; then
+    chainloader ${rel_dirname}/ipxe-chain.efi
+  else 
+    linux16 ${rel_dirname}/ipxe-chain.bios
+  fi
+EOF
+  sed "s/^/$submenu_indentation/" << EOF
+}
+EOF
+
+echo "$title_correction_code"
