@@ -113,6 +113,15 @@ dism /unmount-wim /mountdir:install /commit
 dism /export-image /sourceimagefile:install.wim /sourceindex:4 /destinationimagefile:install-dc.wim /compress:max
 ```
 
+# For better compression
+
+https://wimlib.net/
+
+```
+wimlib-imagex export install-dc.wim 1 install.wim --compress=LZMS --solid
+```
+
+
 # Boot
 
 ## Modify grub.cfg (add as first entry)
