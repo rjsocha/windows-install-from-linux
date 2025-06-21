@@ -19,7 +19,6 @@ wpeutil WaitForNetwork
 
 start %SYSTEMDRIVE%\wyga\vnc\winvnc.exe -run
 
-ipconfig
 
 wpeutil UpdateBootInfo
 :: delims is tab and space
@@ -28,6 +27,8 @@ if %Firmware%==0x1 SET FW=bios
 if %Firmware%==0x2 SET FW=uefi
 
 ping -n 5 %INSTALL%
+
+@ipconfig
 
 :LOOP
 net use * /delete /yes
@@ -39,6 +40,8 @@ GOTO LOOP
 :MENU
 @ECHO.
 @ECHO FIRMWARE: %FW%
+@ECHO.
+@ipconfig
 @ECHO.
 @ECHO 1. CMD
 @ECHO 2. SETUP.EXE
@@ -63,6 +66,7 @@ START /WAIT SETUP.EXE
 GOTO MENU
 
 :SETUPAUTO
+@ipconfig
 Z:
 CD \
 START /WAIT SETUP.EXE /unattend:z:\unattend_%FW%.xml
