@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 set -e
 
 prefix="/usr"
@@ -10,13 +10,7 @@ quick_boot="0"
 gfxpayload_dynamic="0"
 vt_handoff="0"
 
-. "$pkgdatadir/grub-mkconfig_lib"
-
-export TEXTDOMAIN=grub
-export TEXTDOMAINDIR="${datarootdir}/locale"
-
-CLASS="--class gnu-linux --class gnu --class os"
-SUPPORTED_INITS="sysvinit:/lib/sysvinit/init systemd:/lib/systemd/systemd upstart:/sbin/upstart"
+. "${pkgdatadir}/grub-mkconfig_lib"
 
 if ( [ "x${GRUB_DEVICE_UUID}" = "x" ] && [ "x${GRUB_DEVICE_PARTUUID}" = "x" ] ) \
     || ( [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
@@ -46,66 +40,95 @@ case x"$GRUB_FS" in
 	;;
 esac
 
-cat <<EOF
-# LINUX_ROOT_DEVICE=$LINUX_ROOT_DEVICE
-#
-EOF
+indentation="  "
+boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
 
-title_correction_code=
-
-
-machine=`uname -m`
+FW=BIOS
+if [ -d /sys/firmware/efi ]; then
+  FW=UEFI
+  export FORCE_NETBOOT=on
+fi
 
 if [ ! -f /boot/ipxe-chain.efi ]; then
-  printf -- "Download ipxe-chain.efi ...\n" >&2
-  curl -o /boot/ipxe-chain.efi -# http://http.install.socha.it/windows/boot/ipxe-chain.efi
+  printf -- "Downloading ipxe-chain.efi ...\n" >&2
+  curl -o /boot/ipxe-chain.efi -# -f http://http.install.socha.it/windows/boot/ipxe-chain.efi
 fi
 if [ ! -f /boot/ipxe-chain.bios ]; then
-  printf -- "Download ipxe-chain.bios ...\n" >&2
-  curl -o /boot/ipxe-chain.bios -# http://http.install.socha.it/windows/boot/ipxe-chain.bios
+  printf -- "Downloading ipxe-chain.bios ...\n" >&2
+  curl -o /boot/ipxe-chain.bios -# -f http://http.install.socha.it/windows/boot/ipxe-chain.bios
 fi
 
-prepare_boot_cache=
-prepare_root_cache=
-boot_device_id=
-title_correction_code=
+bootloader=/boot/ipxe-chain.bios
 
+if [[ -z ${FORCE_NETBOOT-} ]]; then
+  if [[ ${FW} == "BIOS" ]]; then
+    mkdir -p /wyga
+    if [[ ! -f /wyga/wimboot ]]; then
+      printf -- "Downloading wimboot ...\n" >&2
+      curl -o /wyga/wimboot -# -f http://http.install.socha.it/windows/wimboot
+    fi
+    if [[ ! -f /wyga/winpeshl.ini ]]; then
+      printf -- "Downloading winpeshl.ini ...\n" >&2
+      curl -o /wyga/winpeshl.ini -# -f http://http.install.socha.it/windows/wyga/winpeshl.ini
+    fi
+    if [[ ! -f /wyga/wyga.cmd ]]; then
+      printf -- "Downloading wyga.cmd ...\n" >&2
+      curl -o /wyga/wyga.cmd -# -f http://http.install.socha.it/windows/wyga/wyga.cmd
+    fi
+    if [[ ! -f /wyga/wyga.cab ]]; then
+      printf -- "Downloading wyga.cab ...\n" >&2
+      curl -o /wyga/wyga.cab -# -f http://http.install.socha.it/windows/wyga/wyga.cab
+    fi
+    if [[ ! -f /wyga/bcd ]]; then
+      printf -- "Downloading BCD ...\n" >&2
+      curl -o /wyga/bcd -# -f http://http.install.socha.it/windows/2025/bcd
+    fi
+    if [[ ! -f /wyga/boot.sdi ]]; then
+      printf -- "Downloading boot.sdi ...\n" >&2
+      curl -o /wyga/boot.sdi -# -f http://http.install.socha.it/windows/2025/boot.sdi
+    fi
+    if [[ ! -f /wyga/boot.wim ]]; then
+      printf -- "Downloading boot.wim ...\n" >&2
+      curl -o /wyga/boot.wim -# -f http://http.install.socha.it/windows/2025/boot.wim
+    fi
+  fi
+fi
 
-# Extra indentation to add to menu entries in a submenu. We're not in a submenu
-# yet, so it's empty. In a submenu it will be equal to '\t' (one tab).
-submenu_indentation=""
-
-is_top_level=true
-linux=/boot/ipxe-chain.bios
-basename=`basename $linux`
-dirname=`dirname $linux`
+basename=`basename $bootloader`
+dirname=`dirname $bootloader`
 rel_dirname=`make_system_path_relative_to_its_root $dirname`
 
-  if [ -z "$boot_device_id" ]; then
-      boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
-  fi
-  printf -- "Adding windows-install entry ...\n" >&2
-  echo "menuentry 'windows-install' {" | sed "s/^/$submenu_indentation/"
-  if [ x$dirname = x/ ]; then
-    if [ -z "${prepare_root_cache}" ]; then
-      prepare_root_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE} | grub_add_tab)"
-    fi
-    printf '%s\n' "${prepare_root_cache}" | sed "s/^/$submenu_indentation/"
-  else
-    if [ -z "${prepare_boot_cache}" ]; then
-      prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
-    fi
-    printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
-  fi
-    sed "s/^/$submenu_indentation/" << EOF
-  if [ "\$grub_platform" = "efi" ]; then
-    chainloader ${rel_dirname}/ipxe-chain.efi
-  else 
-    linux16 ${rel_dirname}/ipxe-chain.bios
-  fi
-EOF
-  sed "s/^/$submenu_indentation/" << EOF
-}
+printf -- "Adding windows-install entry ...\n" >&2
+printf -- "menuentry 'windows-install' {\n"
+sed "s/^/$indentation/" << EOF
+# GRUB_DEVICE=${GRUB_DEVICE-NONE}
+# GRUB_DEVICE_BOOT=${GRUB_DEVICE_BOOT-NONE}
+# LINUX_ROOT_DEVICE=${LINUX_ROOT_DEVICE-NONE}
 EOF
 
-echo "$title_correction_code"
+if [[ -n ${FORCE_NETBOOT-} ]]; then
+  if [ x$dirname = x/ ]; then
+    prepare_boot="$(prepare_grub_to_access_device ${GRUB_DEVICE})"
+    printf '%s\n' "# ROOT" | sed "s/^/$indentation/"
+  else
+    prepare_boot="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT})"
+    printf '%s\n' "# BOOT" | sed "s/^/$indentation/"
+  fi
+  printf '%s\n' "${prepare_boot}" | sed "s/^/$indentation/"
+sed "s/^/$indentation/" << EOF
+if [ "\$grub_platform" = "efi" ]; then
+  chainloader ${rel_dirname}/ipxe-chain.efi
+else
+  linux16 ${rel_dirname}/ipxe-chain.bios
+fi
+EOF
+else
+  prepare_boot="$(prepare_grub_to_access_device ${GRUB_DEVICE})"
+  printf '%s\n' "# ROOT" | sed "s/^/$indentation/"
+  printf '%s\n' "${prepare_boot}" | sed "s/^/$indentation/"
+sed "s/^/$indentation/" << EOF
+linux16 /wyga/wimboot quiet
+initrd16 newc:winpeshl.ini:/wyga/winpeshl.ini newc:wyga.cmd:/wyga/wyga.cmd newc:wyga.cab:/wyga/wyga.cab newc:bcd:/wyga/bcd newc:boot.sdi:/wyga/boot.sdi newc:boot.wim:/wyga/boot.wim
+EOF
+fi
+printf -- "}\n"

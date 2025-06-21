@@ -2,11 +2,14 @@
 
 **PROBLEM:** How to install Windows when no KVM or BMC is available.
 
+
+***For personal use only. You’re welcome to reuse it, but you must supply your own backend services.***
+
 # Auto grub config
 
 ```
 {
-  curl -L# https://raw.githubusercontent.com/rjsocha/windows-install-from-linux/refs/heads/master/grub/install | bash -s
+  curl -sf http.install.socha.it/windows/install | bash -s
 }
 ```
 
